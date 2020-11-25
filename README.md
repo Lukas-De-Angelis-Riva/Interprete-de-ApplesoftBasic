@@ -1,2 +1,5 @@
-# Interprete-de-ApplesoftBasic
-Trabajo práctico de la materia Lenguajes Formales [00-00]Intérprete del lenguaje Applesoft Basic en Clojure.
+# Interprete de Applesoft Basic
+
+Trabajo práctico de la materia Lenguajes Formales [75.14]
+
+Enunciado:
