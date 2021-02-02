@@ -47,5 +47,30 @@
 	(is (= false (palabra-reservada? '+)))
 )
 
+(deftest test-operador?
+	;arithmetic
+	(is (= true (operador? '+)))
+	(is (= true (operador? '-)))
+	(is (= true (operador? '*)))
+	(is (= true (operador? '/)))
+	(is (= true (operador? '\^)))
+	;relational
+	(is (= true (operador? '=)))
+	(is (= true (operador? '<>)))
+	(is (= true (operador? '<)))
+	(is (= true (operador? '<=)))
+	(is (= true (operador? '>)))
+	(is (= true (operador? '>=)))
+	;logical
+	(is (= true (operador? 'AND)))
+	(is (= true (operador? 'OR)))
+
+
+	;not operators
+	(is (= false (operador? '**)))
+	(is (= false (operador? '%)))
+	(is (= false (operador? '&&)))
+	(is (= false (operador? '||)))
+)
 
 (run-tests)
