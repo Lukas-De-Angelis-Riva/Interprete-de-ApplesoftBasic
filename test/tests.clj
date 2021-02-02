@@ -1,5 +1,7 @@
 (require '[clojure.test :refer [is deftest run-tests]])
 
+(load-file "src/basic.clj")
+
 (deftest test-palabra-reservada?
 	;input-output
 	(is (= true (palabra-reservada? 'INPUT)))
