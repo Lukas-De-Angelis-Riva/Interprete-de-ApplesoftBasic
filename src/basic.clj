@@ -32,7 +32,7 @@
 (declare palabra-reservada?)              ; HECHA
 (declare operador?)                       ; HECHA
 (declare anular-invalidos)                ; HECHA
-(declare cargar-linea)                    ; IMPLEMENTAR
+(declare cargar-linea)                    ; HECHA
 (declare expandir-nexts)                  ; IMPLEMENTAR
 (declare dar-error)                       ; IMPLEMENTAR
 (declare variable-float?)                 ; IMPLEMENTAR
@@ -725,8 +725,8 @@
 
 (defn anular-invalidos [sentencia]
     (map #(if (valido? %) % nil) sentencia)
-)
 
+)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; cargar-linea: recibe una linea de codigo y un ambiente y retorna
 ; el ambiente actualizado, por ejemplo:
@@ -739,7 +739,26 @@
 ; user=> (cargar-linea '(15 (X = X - 1)) ['((10 (PRINT X)) (15 (X = X + 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}])
 ; [((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; Devuelve si la linea-x se ejecuta antes que la linea-y
+(defn se-ejecuta-antes [linea-x linea-y]
+    (< (first linea-x) (first linea-y))    
+)
+
+; Devuelve si la linea-x se ejecuta despues que la linea-y
+(defn se-ejecuta-despues [linea-x linea-y]
+    (> (first linea-x) (first linea-y))    
+)
+
 (defn cargar-linea [linea amb]
+    (let [
+        lineas-menores (filter (partial se-ejecuta-despues linea) (first amb))
+        lineas-mayores (filter (partial se-ejecuta-antes linea) (first amb))
+        nuevas-lineas (concat lineas-menores (cons linea '()) lineas-mayores)
+    ]
+    (vec (cons nuevas-lineas (rest amb)))
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
