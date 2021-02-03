@@ -6,6 +6,7 @@
 	;input-output
 	(is (= true (palabra-reservada? 'INPUT)))
 	(is (= true (palabra-reservada? 'PRINT)))
+	(is (= true (palabra-reservada? '?)))
 	;data
 	(is (= true (palabra-reservada? 'DATA)))
 	(is (= true (palabra-reservada? 'READ)))
@@ -73,6 +74,51 @@
 	(is (= false (operador? '%)))
 	(is (= false (operador? '&&)))
 	(is (= false (operador? '||)))
+)
+
+(deftest test-es-numero?
+	;numbers
+	(is (= true (es-numero? "1")))
+	(is (= true (es-numero? ".1")))
+	(is (= true (es-numero? "0.1")))
+	(is (= true (es-numero? ".")))
+	(is (= true (es-numero? "1.1")))
+	;not numbers
+	(is (= false (es-numero? "1,1")))
+	(is (= false (es-numero? "1e16")))
+	(is (= false (es-numero? "1k")))
+	(is (= false (es-numero? "1k")))
+)
+
+(deftest test-es-cadena?
+	;string
+	(is (= true (es-cadena? "\"1\"")))
+	(is (= true (es-cadena? "\"HOLA COMO ESTAS\"")))
+	(is (= true (es-cadena? "\"127.0.0.1\"")))
+	;not string
+	(is (= false (es-cadena? "HOLA\"")))
+	(is (= false (es-cadena? "\"HOLA")))
+	(is (= false (es-cadena? "HOLA")))
+)
+
+(deftest test-es-posible-nombre-de-variable?
+	;is a possible name
+	(is (= true (es-posible-nombre-de-variable? 'ITERADOR)))
+	(is (= true (es-posible-nombre-de-variable? 'A$)))
+	(is (= true (es-posible-nombre-de-variable? 'X%)))
+	(is (= true (es-posible-nombre-de-variable? 'CADENA$)))
+	;not a possible name
+	(is (= false (es-posible-nombre-de-variable? '$)))
+	(is (= false (es-posible-nombre-de-variable? '%)))
+	(is (= false (es-posible-nombre-de-variable? "")))
+	(is (= false (es-posible-nombre-de-variable? 'LET)))
+	(is (= false (es-posible-nombre-de-variable? 'READ)))
+)
+
+(deftest test-anular-invalidos
+	(is (= '(PRINT "HOLA") (anular-invalidos '(PRINT "HOLA"))))
+	(is (= '(IF X nil * Y < 12 THEN LET nil X = 0) (anular-invalidos '(IF X & * Y < 12 THEN LET ! X = 0))))
+	(is (= '(IF B >= 10 AND B <= 15 THEN H$ = CHR$) (anular-invalidos '(IF B >= 10 AND B <= 15 THEN H$ = CHR$))))
 )
 
 (run-tests)
