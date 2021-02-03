@@ -29,9 +29,9 @@
 (declare evaluar)                         ; COMPLETAR
 (declare aplicar)                         ; COMPLETAR
 
-(declare palabra-reservada?)              ; IMPLEMENTAR
-(declare operador?)                       ; IMPLEMENTAR
-(declare anular-invalidos)                ; IMPLEMENTAR
+(declare palabra-reservada?)              ; HECHA
+(declare operador?)                       ; HECHA
+(declare anular-invalidos)                ; HECHA
 (declare cargar-linea)                    ; IMPLEMENTAR
 (declare expandir-nexts)                  ; IMPLEMENTAR
 (declare dar-error)                       ; IMPLEMENTAR
@@ -663,7 +663,7 @@
 
 (defn palabra-reservada? [x]
     (contains?
-        (hash-set 'INPUT 'PRINT 'DATA 'READ 'REM 'RESTORE 'CLEAR 'LET 'LIST 'NEW 'RUN 'END 'FOR 'TO 'NEXT 'STEP 'GOSUB 'RETURN 'GOTO 'IF 'THEN 'ON 'ATN 'INT 'SIN 'LEN 'MID$ 'ASC 'CHR$ 'STR$)
+        (hash-set 'INPUT 'PRINT '? 'DATA 'READ 'REM 'RESTORE 'CLEAR 'LET 'LIST 'NEW 'RUN 'END 'FOR 'TO 'NEXT 'STEP 'GOSUB 'RETURN 'GOTO 'IF 'THEN 'ON 'ATN 'INT 'SIN 'LEN 'MID$ 'ASC 'CHR$ 'STR$)
          x
     )
 )
@@ -691,7 +691,40 @@
 ; user=> (anular-invalidos '(IF X & * Y < 12 THEN LET ! X = 0))
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;TODO: ¿Qué pasa si viene un número que Clojure escriba como notación científica?
+
+;user=> 12312312.1
+; 1.23123121E7
+
+(defn es-numero? [x]
+    (->> x
+        (str)
+        (#((partial re-matches #"\d+\.\d+|\d+|\.\d+|\.") %))
+        (#(not (nil? %)))
+    )
+)
+
+(defn es-cadena? [x]
+    (->> x
+        (str)
+        (#(and (= (first %) \") (= (last %) \")))
+    )
+)
+
+(defn es-posible-nombre-de-variable? [x]
+    (and
+        ((comp not nil? (partial re-matches #"[a-zA-Z]+[$|%]?") str) x)
+        (not (palabra-reservada? x))
+    )
+)
+
+(defn valido? [x]
+    (or (palabra-reservada? x) (operador? x) (es-numero? x) (es-cadena? x) (es-posible-nombre-de-variable? x))
+)
+
 (defn anular-invalidos [sentencia]
+    (map #(if (valido? %) % nil) sentencia)
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
