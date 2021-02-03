@@ -1,4 +1,4 @@
-# Interprete de Applesoft Basic
+# Intérprete de Applesoft Basic
 
 Trabajo práctico de la materia Lenguajes Formales [75.14]
 
