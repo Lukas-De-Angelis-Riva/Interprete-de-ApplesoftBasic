@@ -119,6 +119,7 @@
 	(is (= '(PRINT "HOLA") (anular-invalidos '(PRINT "HOLA"))))
 	(is (= '(IF X nil * Y < 12 THEN LET nil X = 0) (anular-invalidos '(IF X & * Y < 12 THEN LET ! X = 0))))
 	(is (= '(IF B >= 10 AND B <= 15 THEN H$ = CHR$) (anular-invalidos '(IF B >= 10 AND B <= 15 THEN H$ = CHR$))))
+	(is (= '(nil B >= 10 AND nil B <= 15 THEN H$ nil nil CHR$) (anular-invalidos '(IF? B >= 10 AND !! B <= 15 THEN H$ !% != CHR$))))
 )
 
 (run-tests)

@@ -31,7 +31,7 @@
 
 (declare palabra-reservada?)              ; HECHA
 (declare operador?)                       ; HECHA
-(declare anular-invalidos)                ; IMPLEMENTAR
+(declare anular-invalidos)                ; HECHA
 (declare cargar-linea)                    ; IMPLEMENTAR
 (declare expandir-nexts)                  ; IMPLEMENTAR
 (declare dar-error)                       ; IMPLEMENTAR
@@ -714,7 +714,7 @@
 
 (defn es-posible-nombre-de-variable? [x]
     (and
-        ((comp not nil? (partial re-matches #"[a-zA-Z]+[$|%]?") (str x)))
+        ((comp not nil? (partial re-matches #"[a-zA-Z]+[$|%]?") str) x)
         (not (palabra-reservada? x))
     )
 )
