@@ -34,7 +34,7 @@
 (declare anular-invalidos)                ; HECHA
 (declare cargar-linea)                    ; HECHA
 (declare expandir-nexts)                  ; HECHA
-(declare dar-error)                       ; IMPLEMENTAR
+(declare dar-error)                       ; HECHA
 (declare variable-float?)                 ; IMPLEMENTAR
 (declare variable-integer?)               ; IMPLEMENTAR
 (declare variable-string?)                ; IMPLEMENTAR
@@ -822,6 +822,12 @@
 ; ?ERROR DISK FULL IN 100nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn dar-error [cod prog-ptrs]
+    (let [
+        error (if (number? cod) (buscar-mensaje cod) cod)
+        linea (if (= :ejecucion-inmediata (first prog-ptrs)) "" (str " IN " (first prog-ptrs)))
+    ]
+    (print (str error linea))
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
