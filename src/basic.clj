@@ -35,8 +35,8 @@
 (declare cargar-linea)                    ; HECHA
 (declare expandir-nexts)                  ; HECHA
 (declare dar-error)                       ; HECHA
-(declare variable-float?)                 ; IMPLEMENTAR
-(declare variable-integer?)               ; IMPLEMENTAR
+(declare variable-float?)                 ; HECHA
+(declare variable-integer?)               ; HECHA
 (declare variable-string?)                ; IMPLEMENTAR
 (declare contar-sentencias)               ; IMPLEMENTAR
 (declare buscar-lineas-restantes)         ; IMPLEMENTAR
@@ -855,6 +855,7 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-integer? [x]
+    ((comp not nil? (partial re-matches #"[a-zA-Z]+\%") str) x)
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

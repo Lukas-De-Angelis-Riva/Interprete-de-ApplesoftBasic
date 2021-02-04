@@ -158,4 +158,23 @@
 	(is (= false (variable-float? 'ITERADOR%)))
 )
 
+(deftest test-variable-integer?
+	(is (= true (variable-integer? 'X%)))
+	(is (= true (variable-integer? 'ITERADOR%)))
+	(is (= false (variable-integer? 'X)))
+	(is (= false (variable-integer? 'X$)))
+	(is (= false (variable-integer? 'ITERADOR)))
+	(is (= false (variable-integer? 'ITERADOR$)))
+)
+
+(deftest test-variable-string?
+	(is (= true (variable-integer? 'X$)))
+	(is (= true (variable-integer? 'ITERADOR$)))
+	(is (= false (variable-integer? 'X)))
+	(is (= false (variable-integer? 'X%)))
+	(is (= false (variable-integer? 'ITERADOR)))
+	(is (= false (variable-integer? 'ITERADOR%)))
+)
+
+
 (run-tests)
