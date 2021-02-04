@@ -38,7 +38,7 @@
 (declare variable-float?)                 ; HECHA
 (declare variable-integer?)               ; HECHA
 (declare variable-string?)                ; HECHA
-(declare contar-sentencias)               ; IMPLEMENTAR
+(declare contar-sentencias)               ; HECHA
 (declare buscar-lineas-restantes)         ; IMPLEMENTAR
 (declare continuar-linea)                 ; IMPLEMENTAR
 (declare extraer-data)                    ; IMPLEMENTAR
@@ -842,7 +842,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-float? [x]
     ;Esto es que sea alfanumerica y la primer letra sea alfabetica.
-    ((comp not nil? (partial re-matches #"[a-zA-Z]\w+") str) x)
+    ((comp not nil? (partial re-matches #"[a-zA-Z](\w+)?") str) x)
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -884,7 +884,18 @@
 ; user=> (contar-sentencias 20 [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [10 1] [] [] [] 0 {}])
 ; 2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn contar-sentencias [nro-linea amb]
+    ;TODO: si no esta la linea deberia devolver nil o 0?
+    (->> amb
+        (first)
+        (filter #(= (first %) nro-linea))
+        (first)
+        (rest)
+        (expandir-nexts)
+        ;TODO: proximamente (extraer-data) Aun no esta hecha
+        (count)
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
