@@ -129,4 +129,23 @@
 	(is (= '[((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}] (cargar-linea '(15 (X = X - 1)) ['((10 (PRINT X)) (15 (X = X + 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}])))
 )
 
+(deftest test-es-next?
+	(is (= true (es-next? (list 'NEXT 'A))))
+	(is (= true (es-next? (list 'NEXT 'A (symbol ",") 'B))))
+	(is (= false (es-next? (list 'PRINT "HOLA"))))
+	(is (= false (es-next? '())))
+)
+
+(deftest test-expandir
+	(is (= (list (list 'NEXT 'A)) (expandir (list 'NEXT 'A))))
+	(is (= (list (list 'NEXT 'A) (list 'NEXT 'B)) (expandir (list 'NEXT 'A (symbol ",") 'B))))
+	(is (= (list (list 'NEXT 'A) (list 'NEXT 'B) (list 'NEXT 'C)) (expandir (list 'NEXT 'A (symbol ",") 'B (symbol ",") 'C))))
+)
+
+(deftest test-expandir-nexts
+	(is (= '((PRINT 1) (NEXT A) (NEXT B)) (expandir-nexts (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'B)))))
+	(is (= '((PRINT 1) (NEXT A) (NEXT B) (NEXT C) (NEXT D)) (expandir-nexts (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'B (symbol ",") 'C) (list 'NEXT 'D)))))
+	(is (= '((NEXT A)) (expandir-nexts (list (list 'NEXT 'A)))))
+	(is (= '((PRINT 1)) (expandir-nexts '((PRINT 1)))))
+)
 (run-tests)

@@ -33,7 +33,7 @@
 (declare operador?)                       ; HECHA
 (declare anular-invalidos)                ; HECHA
 (declare cargar-linea)                    ; HECHA
-(declare expandir-nexts)                  ; IMPLEMENTAR
+(declare expandir-nexts)                  ; HECHA
 (declare dar-error)                       ; IMPLEMENTAR
 (declare variable-float?)                 ; IMPLEMENTAR
 (declare variable-integer?)               ; IMPLEMENTAR
@@ -712,6 +712,10 @@
     )
 )
 
+(defn es-puramente-alfabetico? [x]
+    ((comp not nil? (partial re-matches #"[a-zA-Z]+") str) x)
+)
+
 (defn es-posible-nombre-de-variable? [x]
     (and
         ((comp not nil? (partial re-matches #"[a-zA-Z]+[$|%]?") str) x)
@@ -772,8 +776,33 @@
 ; user=> (expandir-nexts n)
 ; ((PRINT 1) (NEXT A) (NEXT B))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn expandir-nexts [n]
+
+;recibe una lista que compone una operacion y devuelve si se trata de un NEXT
+(defn es-next? [x]
+    (= 'NEXT (first x))
 )
+
+;recibe una lista que compone una operacion NEXT y devuelve una lista con las sublistas
+;resultantes de la expansion
+(defn expandir [x]
+    (map #(list 'NEXT %) (filter es-posible-nombre-de-variable? x))
+)
+
+(defn expandir-nexts-recursivo [v n]
+    (if (empty? n) 
+        v
+        (let [actual (first n),
+            vector-nuevo (if (es-next? actual) (apply (partial conj v) (expandir actual)) (conj v actual))]
+            (expandir-nexts-recursivo vector-nuevo (rest n))
+        )
+    )
+    
+)
+
+(defn expandir-nexts [n]
+    (seq (expandir-nexts-recursivo '[] n))
+)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; dar-error: recibe un error (codigo o mensaje) y el puntero de 
