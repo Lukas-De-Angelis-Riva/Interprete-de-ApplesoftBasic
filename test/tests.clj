@@ -168,12 +168,12 @@
 )
 
 (deftest test-variable-string?
-	(is (= true (variable-integer? 'X$)))
-	(is (= true (variable-integer? 'ITERADOR$)))
-	(is (= false (variable-integer? 'X)))
-	(is (= false (variable-integer? 'X%)))
-	(is (= false (variable-integer? 'ITERADOR)))
-	(is (= false (variable-integer? 'ITERADOR%)))
+	(is (= true (variable-string? 'X$)))
+	(is (= true (variable-string? 'ITERADOR$)))
+	(is (= false (variable-string? 'X)))
+	(is (= false (variable-string? 'X%)))
+	(is (= false (variable-string? 'ITERADOR)))
+	(is (= false (variable-string? 'ITERADOR%)))
 )
 
 
