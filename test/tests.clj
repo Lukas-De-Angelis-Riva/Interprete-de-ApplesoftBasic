@@ -148,4 +148,14 @@
 	(is (= '((NEXT A)) (expandir-nexts (list (list 'NEXT 'A)))))
 	(is (= '((PRINT 1)) (expandir-nexts '((PRINT 1)))))
 )
+
+(deftest test-variable-float?
+	(is (= true (variable-float? 'X)))
+	(is (= true (variable-float? 'ITERADOR)))
+	(is (= false (variable-float? 'X$)))
+	(is (= false (variable-float? 'X%)))
+	(is (= false (variable-float? 'ITERADOR$)))
+	(is (= false (variable-float? 'ITERADOR%)))
+)
+
 (run-tests)
