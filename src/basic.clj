@@ -39,7 +39,7 @@
 (declare variable-integer?)               ; HECHA
 (declare variable-string?)                ; HECHA
 (declare contar-sentencias)               ; HECHA
-(declare buscar-lineas-restantes)         ; IMPLEMENTAR
+(declare buscar-lineas-restantes)         ; HECHA
 (declare continuar-linea)                 ; IMPLEMENTAR
 (declare extraer-data)                    ; IMPLEMENTAR
 (declare ejecutar-asignacion)             ; IMPLEMENTAR
@@ -930,9 +930,28 @@
 ; user=> (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [25 0] [] [] [] 0 {}])
 ; nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn buscar-lineas-restantes
-  ([amb] (buscar-lineas-restantes (amb 1) (amb 0)))
-  ([act prg]
+    ([amb] (buscar-lineas-restantes (amb 1) (amb 0)))
+    ([act prg]
+        (let
+            [nro-linea (act 0)
+            cantidad-lineas-restantes (act 1)
+            linea-sin-expandir (first (filter #(= nro-linea (first %)) prg))
+            linea (if (empty? linea-sin-expandir)
+                nil
+                (->> linea-sin-expandir
+                    (rest)
+                    (expandir-nexts)
+                    ;TODO: proximamente (extraer-data) Aun no esta hecha
+                )
+            )
+            lineas-siguientes (filter #(< nro-linea (first %)) prg)]
+            (if (or (= :ejecucion-inmediata nro-linea) (nil? linea))
+                nil
+                (concat (list (cons nro-linea (take-last cantidad-lineas-restantes linea))) lineas-siguientes)
+            )
+        )
     )
 )
 
