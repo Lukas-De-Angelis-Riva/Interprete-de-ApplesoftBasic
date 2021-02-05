@@ -967,7 +967,18 @@
 ; [:omitir-restante [((10 (PRINT X)) (15 (GOSUB 100) (X = X + 1)) (20 (NEXT I , J))) [15 1] [] [] [] 0 {}]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn continuar-linea [amb]
+    (if (empty? (amb 2)) ; Return without gosub error
+        (do (dar-error 22 (amb 1)) [nil amb])
+        (let [datos-gosub (peek (amb 2)),
+              linea-llamado (first datos-gosub)
+               pasos-lineas (- (last datos-gosub) 1)
+              ]
+              [:omitir-restante [(amb 0) [linea-llamado pasos-lineas] (pop (amb 2)) (amb 3) (amb 4) (amb 5) (amb 6)]]
+        )
+    )
 )
+;TODO: Preguntar si es así. No entiendo bien qué es lo que debería hacer esta función.
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; extraer-data: recibe la representación intermedia de un programa
