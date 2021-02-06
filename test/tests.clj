@@ -95,10 +95,7 @@
 	(is (= true (es-cadena? "\"1\"")))
 	(is (= true (es-cadena? "\"HOLA COMO ESTAS\"")))
 	(is (= true (es-cadena? "\"127.0.0.1\"")))
-	;not string
-	(is (= false (es-cadena? "HOLA\"")))
-	(is (= false (es-cadena? "\"HOLA")))
-	(is (= false (es-cadena? "HOLA")))
+	(is (= true (es-cadena? (symbol "\"HOLA\""))))
 )
 
 (deftest test-es-posible-nombre-de-variable?
@@ -204,6 +201,20 @@
 			[nil [(list '(10 (PRINT X)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 3] [] [] [] 0 {}]]))
 	(is (= (continuar-linea [(list '(10 (PRINT X)) '(15 (GOSUB 100) (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 3] [[15 2]] [] [] 0 {}]) 
 			[:omitir-restante [(list '(10 (PRINT X)) '(15 (GOSUB 100) (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [15 1] [] [] [] 0 {}]]))
+)
+
+(deftest test-quitar-rem
+	(is (= (quitar-rem '(10 (PRINT X) (REM ESTE NO) (DATA 30))) '(10 (PRINT X))))
+	(is (= (quitar-rem '(10 (REM ESTE NO) (PRINT X) (PRINT Y))) '(10)))
+)
+
+(deftest test-extraer-data 
+	(is (= (extraer-data (list '(10 (PRINT X) (DATA 30)) '(20 (DATA HOLA)) (list 100 (list 'DATA 'MUNDO (symbol ",") 10 (symbol ",") 20))))
+			'(30 "HOLA" "MUNDO" 10 20)))
+	(is (= (extraer-data (list '(10 (PRINT X) (REM ESTE NO) (DATA 30)) '(20 (DATA HOLA)) (list 100 (list 'DATA 'MUNDO (symbol ",") 10 (symbol ",") 20))))
+			'("HOLA" "MUNDO" 10 20)))
+	(is (= (extraer-data (list (list 10 (list 'REM 'ESTO 'NO 'VA)))) '()))
+    (is (= (extraer-data '(())) '()))
 )
 
 (run-tests)

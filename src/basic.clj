@@ -31,7 +31,7 @@
 
 (declare palabra-reservada?)              ; HECHA
 (declare operador?)                       ; HECHA
-(declare anular-invalidos)                ; HECHA
+(declare anular-invalidos)                ; DUDOSA
 (declare cargar-linea)                    ; HECHA
 (declare expandir-nexts)                  ; HECHA
 (declare dar-error)                       ; HECHA
@@ -40,8 +40,8 @@
 (declare variable-string?)                ; HECHA
 (declare contar-sentencias)               ; HECHA
 (declare buscar-lineas-restantes)         ; HECHA
-(declare continuar-linea)                 ; IMPLEMENTAR
-(declare extraer-data)                    ; IMPLEMENTAR
+(declare continuar-linea)                 ; DUDOSA -> Preguntar concretamente qué se quiere de esta función, ampliar los tests.
+(declare extraer-data)                    ; DUDOSA -> Ver si hace falta un presunto DATA "HOLA"...
 (declare ejecutar-asignacion)             ; IMPLEMENTAR
 (declare preprocesar-expresion)           ; IMPLEMENTAR
 (declare desambiguar)                     ; IMPLEMENTAR
@@ -989,7 +989,67 @@
 ; user=> (extraer-data (list '(10 (PRINT X) (REM ESTE NO) (DATA 30)) '(20 (DATA HOLA)) (list 100 (list 'DATA 'MUNDO (symbol ",") 10 (symbol ",") 20))))
 ; ("HOLA" "MUNDO" 10 20)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; recibe una linea y devuelve la linea hasta la primer sentencia rem.
+(defn quitar-rem [linea]
+    (let [nro-linea (first linea)]
+        (->> linea
+            (rest)
+            (take-while #(not= (first %) 'REM))
+            (cons nro-linea)
+        )
+    )
+)
+
+(defn preparar-data [x]
+    (cond
+        (es-numero? x) x
+        :else (str x)
+    )
+)
+
+(defn expandir-data-sentencia [sentencia]
+    (map #(list 'DATA (preparar-data %)) (filter #(or (es-numero? %) (es-posible-nombre-de-variable? %)) sentencia))
+);TODO: No tiene en cuenta un (DATA "HOLA") ¿Debería?
+
+(defn es-data? [sentencia]
+    (= (first sentencia) 'DATA)
+)
+
+(defn expandir-datas-recursivo [v l]
+    (if (empty? l)
+        v
+        (let [actual (first l)
+              vector-nuevo (if (es-data? actual) (apply (partial conj v) (expandir-data-sentencia actual)) (conj v actual))]
+              (expandir-datas-recursivo vector-nuevo (rest l))
+        )
+    )
+)
+
+;recibe una linea y expande los data.
+(defn expandir-datas [linea]
+    (let [nro-linea (first linea),
+          linea-sin-nro (rest linea)]
+        (cons nro-linea (seq (expandir-datas-recursivo '[] linea-sin-nro)))
+    )
+)
+
+(defn filtrar-datas [linea]
+    (->> linea
+        (rest) ; quita el nro de linea
+        (filter #(es-data? %))
+        (map rest)
+        (flatten)
+    )
+)
+
 (defn extraer-data [prg]
+    (->> prg
+        (map quitar-rem)
+        (map expandir-datas)
+        (map filtrar-datas)
+        (flatten)
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
