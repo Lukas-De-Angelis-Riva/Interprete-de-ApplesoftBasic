@@ -692,11 +692,6 @@
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;TODO: ¿Qué pasa si viene un número que Clojure escriba como notación científica?
-
-;user=> 12312312.1
-; 1.23123121E7
-
 (defn es-numero? [x]
     (->> x
         (str)
@@ -712,25 +707,23 @@
     )
 )
 
-(defn es-puramente-alfabetico? [x]
-    ((comp not nil? (partial re-matches #"[a-zA-Z]+") str) x)
-)
-
 (defn es-posible-nombre-de-variable? [x]
     (and
-        ((comp not nil? (partial re-matches #"[a-zA-Z]+[$|%]?") str) x)
+        ((comp not nil? (partial re-matches #"[A-Z][A-Z0-9]*[$|%]?") str) x)
         (not (palabra-reservada? x))
     )
 )
 
 (defn valido? [x]
-    (or (palabra-reservada? x) (operador? x) (es-numero? x) (es-cadena? x) (es-posible-nombre-de-variable? x))
+    (let [simbolos-invalidos #"\!|\"|\#|\&|\'|\:|\{|\}|\[|\]|\_|\|\~|\%|\$"]
+        (nil? (re-matches simbolos-invalidos (str x)))
+    )
 )
 
 (defn anular-invalidos [sentencia]
     (map #(if (valido? %) % nil) sentencia)
-
 )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; cargar-linea: recibe una linea de codigo y un ambiente y retorna
 ; el ambiente actualizado, por ejemplo:
