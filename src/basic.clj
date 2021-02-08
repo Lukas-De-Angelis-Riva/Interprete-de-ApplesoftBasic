@@ -1058,7 +1058,17 @@
 ; user=> (ejecutar-asignacion '(X$ = X$ + " MUNDO") ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X$ "HOLA"}])
 ; [((10 (PRINT X))) [10 1] [] [] [] 0 {X$ "HOLA MUNDO"}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn ejecutar-asignacion [sentencia amb]
+    (let [mapa-variables (amb 6)
+          variable (first sentencia)
+          n (count sentencia)
+          nuevo-mapa (cond 
+              (= n 3) (assoc mapa-variables variable (last sentencia))
+              (= n 5) (assoc mapa-variables variable (calcular-expresion (drop 2 sentencia) amb))
+              :else mapa-variables)]
+          (assoc amb 6 nuevo-mapa)
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
