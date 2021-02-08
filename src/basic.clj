@@ -42,12 +42,12 @@
 (declare buscar-lineas-restantes)         ; HECHA
 (declare continuar-linea)                 ; DUDOSA -> Preguntar concretamente qué se quiere de esta función, ampliar los tests.
 (declare extraer-data)                    ; DUDOSA -> Ver si hace falta un presunto DATA "HOLA"...
-(declare ejecutar-asignacion)             ; IMPLEMENTAR
-(declare preprocesar-expresion)           ; IMPLEMENTAR
+(declare ejecutar-asignacion)             ; HECHA
+(declare preprocesar-expresion)           ; HECHA
 (declare desambiguar)                     ; IMPLEMENTAR
 (declare precedencia)                     ; IMPLEMENTAR
 (declare aridad)                          ; IMPLEMENTAR
-(declare eliminar-cero-decimal)           ; IMPLEMENTAR
+(declare eliminar-cero-decimal)           ; HECHA
 (declare eliminar-cero-entero)            ; IMPLEMENTAR
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1080,7 +1080,29 @@
 ; user=> (preprocesar-expresion '(X + . / Y% * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 5 Y% 2}])
 ; (5 + 0 / 2 * 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn buscar-valor [v m]
+    (if (contains? m v)
+        (m v)
+        (cond
+            (variable-string? v) ""
+            :else 0
+        )
+    )
+)
+
+(defn preprocesar-valor [mapa x]
+    (cond
+        (es-posible-nombre-de-variable? x) (buscar-valor x mapa)
+        (es-numero? x) (eliminar-cero-decimal x)
+        :else x
+    )
+)
+
 (defn preprocesar-expresion [expr amb]
+    (let [mapa-variables (amb 6)]
+        (map (partial preprocesar-valor mapa-variables) expr)
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1145,7 +1167,32 @@
 ; user=> (eliminar-cero-decimal 'A)
 ; A
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn drop-while-from-last [f s]
+    (reverse (drop-while f (reverse s)))
+)
+
+(defn castear-a-double [x]
+    (Double/parseDouble x)
+)
+
+(defn castear-a-int [n]
+    (Integer/parseInt n)
+)
+
 (defn eliminar-cero-decimal [n]
+    (cond 
+        (= "." (str n)) 0
+        (es-numero? n) (->> n
+            (str)
+            (drop-while-from-last #(= % \0))
+            (#(if (= \. (last %))
+           	    ((comp castear-a-int (partial apply str) drop-last) %) 
+           	    ((comp castear-a-double (partial apply str)) %)
+           	))
+        )
+        :else n
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
