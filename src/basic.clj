@@ -1118,7 +1118,36 @@
 ; user=> (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") '- 2 '+ 'K (symbol ",") 3 (symbol ")")))
 ; (MID3$ ( 1 , -u 2 + K , 3 ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn desambiguar-posicion [expr n]
+    (let [actual (nth expr n :termino)
+         previo (nth expr (- n 1) nil)
+         es-operable-previo+ (and (es-numero? previo) (es-cadena? previo))
+         es-operable-previo- (and (es-numero? previo))
+         proximo (nth expr (+ n 1) nil)
+         next-n (+ n 1)]
+        (cond
+            (= :termino actual) expr
+            (es-numero? actual) (desambiguar-posicion expr next-n)
+            (= (symbol "+") actual) (if es-operable-previo+)
+                                        (desambiguar-posicion expr next-n)
+                                        (desambiguar-posicion (assoc expr n (symbol "+u")) next-n)
+            (= (symbol "-") actual) (if es-operable-previo-)
+                                        (desambiguar-posicion expr next-n)
+                                        (desambiguar-posicion (assoc expr n (symbol "+u")) next-n)
+            (seq? actual) (desambiguar-posicion (assoc expr n (desambiguar-posicion actual 0)) next-n)
+            (= (symbol "MID$") actual) (if)
+            :else (desambiguar-posicion expr next-n)
+        )
+    )
+)
+
+(defn sacar-simbolo [symbol sequence]
+
+)
+
 (defn desambiguar [expr]
+    (sacar-simbolo (symbol "+u") (desambiguar-posicion expr 0))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
