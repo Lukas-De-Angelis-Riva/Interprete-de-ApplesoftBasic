@@ -44,7 +44,7 @@
 (declare extraer-data)                    ; DUDOSA -> Ver si hace falta un presunto DATA "HOLA"...
 (declare ejecutar-asignacion)             ; HECHA
 (declare preprocesar-expresion)           ; HECHA
-(declare desambiguar)                     ; IMPLEMENTAR
+(declare desambiguar)                     ; HECHA
 (declare precedencia)                     ; IMPLEMENTAR
 (declare aridad)                          ; IMPLEMENTAR
 (declare eliminar-cero-decimal)           ; HECHA
@@ -1116,38 +1116,59 @@
 ; user=> (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") 2 (symbol ",") 3 (symbol ")")))
 ; (MID3$ ( 1 , 2 , 3 ))
 ; user=> (desambiguar (list 'MID$ (symbol "(") 1 (symbol ",") '- 2 '+ 'K (symbol ",") 3 (symbol ")")))
-; (MID3$ ( 1 , -u 2 + K , 3 ))
+; (MID3$ ( 1 , -u 2 + K , 3 ))	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; contar-parametros-mid: recibe la expresion luego de mid y devuelve la cantidad de parametros
+; que posee el mid, por ejemplo:
+
+(defn contar-parametros-mid-aux [expr posicion cantidad-parametros indice-de-balance]
+    (let [actual (get expr posicion :termino)
+         next-pos (+ posicion 1)]
+        (cond
+            (= indice-de-balance 0) (+ cantidad-parametros 1)
+            (= actual (symbol ")")) (contar-parametros-mid-aux expr next-pos cantidad-parametros (- indice-de-balance 1))
+            (= actual (symbol "(")) (contar-parametros-mid-aux expr next-pos cantidad-parametros (+ indice-de-balance 1))
+            :else (if (and (= indice-de-balance 1) (= actual (symbol ",")))
+                   (contar-parametros-mid-aux expr next-pos (+ cantidad-parametros 1) indice-de-balance)
+                   (contar-parametros-mid-aux expr next-pos cantidad-parametros indice-de-balance))
+        )
+    )
+)
+
+(defn contar-parametros-mid [expr n]
+    (contar-parametros-mid-aux expr (+ n 1) 0 1) ; indico el balance en 1 (hay un parentesis abierto)
+)
+
 (defn desambiguar-posicion [expr n]
-    (let [actual (nth expr n :termino)
-         previo (nth expr (- n 1) nil)
-         es-operable-previo+ (and (es-numero? previo) (es-cadena? previo))
-         es-operable-previo- (and (es-numero? previo))
-         proximo (nth expr (+ n 1) nil)
+    (let [actual (get expr n :termino)
+         previo (get expr (- n 1) nil)
+         es-operable-previo+ (or (es-numero? previo) (es-cadena? previo) (= (symbol ")") previo))
+         es-operable-previo- (or (es-numero? previo) (= (symbol ")") previo))
+         proximo (get expr (+ n 1) nil)
          next-n (+ n 1)]
         (cond
             (= :termino actual) expr
-            (es-numero? actual) (desambiguar-posicion expr next-n)
-            (= (symbol "+") actual) (if es-operable-previo+)
+            (= (symbol "+") actual) (if es-operable-previo+
                                         (desambiguar-posicion expr next-n)
-                                        (desambiguar-posicion (assoc expr n (symbol "+u")) next-n)
-            (= (symbol "-") actual) (if es-operable-previo-)
+                                        (desambiguar-posicion (assoc expr n (symbol "+u")) next-n))
+            (= (symbol "-") actual) (if es-operable-previo-
                                         (desambiguar-posicion expr next-n)
-                                        (desambiguar-posicion (assoc expr n (symbol "+u")) next-n)
-            (seq? actual) (desambiguar-posicion (assoc expr n (desambiguar-posicion actual 0)) next-n)
-            (= (symbol "MID$") actual) (if)
+                                        (desambiguar-posicion (assoc expr n (symbol "-u")) next-n))
+            (= (symbol "MID$") actual) (if (= 3 (contar-parametros-mid expr next-n))
+                                        (desambiguar-posicion (assoc expr n (symbol "MID3$")) next-n)
+                                        (desambiguar-posicion expr next-n))
             :else (desambiguar-posicion expr next-n)
         )
     )
 )
 
 (defn sacar-simbolo [symbol sequence]
-
+    (filter #(not= symbol %) sequence)
 )
 
 (defn desambiguar [expr]
-    (sacar-simbolo (symbol "+u") (desambiguar-posicion expr 0))
+    (sacar-simbolo (symbol "+u") (seq (desambiguar-posicion (vec expr) 0)))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
