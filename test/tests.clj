@@ -278,6 +278,8 @@
 			(desambiguar (list (symbol "MID$") (symbol "(") (symbol "1") (symbol ",") (symbol "-u") (symbol "2") (symbol "+") (symbol "K") (symbol ",") (symbol "3") (symbol ")")))))
 	(is (= (list (symbol "MID3$") (symbol "(") (symbol "\"HOLA MUNDO\"") (symbol ",") (symbol "2") (symbol ",") (symbol "LEN") (symbol "(") (symbol "MID$") (symbol "(") (symbol "\"HOLA\"") (symbol ",") (symbol "1") (symbol ")") (symbol ")") (symbol")"))
 			(desambiguar (list (symbol "MID$") (symbol "(") (symbol "\"HOLA MUNDO\"") (symbol ",") (symbol "2") (symbol ",") (symbol "LEN") (symbol "(") (symbol "MID$") (symbol "(") (symbol "\"HOLA\"") (symbol ",") (symbol "1") (symbol ")") (symbol ")") (symbol")")))))
+	(is (= (list (symbol "MID3$") (symbol "(") (symbol "\"HOLA MUNDO\"") (symbol ",") (symbol "2") (symbol ",") (symbol "LEN") (symbol "(") (symbol "MID3$") (symbol "(") (symbol "\"HOLA\"") (symbol ",") (symbol "2") (symbol ",") (symbol "1") (symbol ")") (symbol ")") (symbol")"))
+			(desambiguar (list (symbol "MID$") (symbol "(") (symbol "\"HOLA MUNDO\"") (symbol ",") (symbol "2") (symbol ",") (symbol "LEN") (symbol "(") (symbol "MID$") (symbol "(") (symbol "\"HOLA\"") (symbol ",") (symbol "2") (symbol ",") (symbol "1") (symbol ")") (symbol ")") (symbol")")))))
 )
 
 (deftest test-eliminar-cero-decimal
@@ -291,6 +293,19 @@
     (is (= 31.123 (eliminar-cero-decimal (symbol "000031.123"))))
 )
 
+(deftest test-eliminar-cero-entero
+	(is (= (eliminar-cero-entero nil) nil))
+	(is (= (eliminar-cero-entero 'A) "A"))
+	(is (= (eliminar-cero-entero (symbol "0")) "0"))
+	(is (= (eliminar-cero-entero (symbol "1.5")) "1.5"))
+	(is (= (eliminar-cero-entero (symbol "1")) "1"))
+	(is (= (eliminar-cero-entero (symbol "-1")) "-1"))
+	(is (= (eliminar-cero-entero (symbol "-1.5")) "-1.5"))
+	(is (= (eliminar-cero-entero (symbol "0.5")) ".5"))
+	(is (= (eliminar-cero-entero (symbol "-0.5")) "-.5"))
+	(is (= (eliminar-cero-entero (symbol "-0.413221")) "-.413221"))
+	(is (= (eliminar-cero-entero (symbol "-0")) "0"))
+)
 
 
 

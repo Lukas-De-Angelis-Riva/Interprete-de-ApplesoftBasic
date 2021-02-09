@@ -48,7 +48,7 @@
 (declare precedencia)                     ; IMPLEMENTAR
 (declare aridad)                          ; IMPLEMENTAR
 (declare eliminar-cero-decimal)           ; HECHA
-(declare eliminar-cero-entero)            ; IMPLEMENTAR
+(declare eliminar-cero-entero)            ; HECHA
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; driver-loop: el REPL del interprete de Applesoft BASIC
@@ -1269,6 +1269,15 @@
 ; "-.5"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn eliminar-cero-entero [n]
+    (let [str-symbol (str n)]
+        (cond
+            (nil? n) nil
+            (and (= \- (first str-symbol)) (= \0 (fnext str-symbol)) (> (count str-symbol) 3)) (apply str \- (drop 2 str-symbol))
+            (and (= \- (first str-symbol)) (= \0 (fnext str-symbol))) "0"
+            (and (= \0 (first str-symbol)) (= \. (fnext str-symbol))) (apply str (rest str-symbol))
+            :else str-symbol
+        )
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
