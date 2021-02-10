@@ -45,8 +45,8 @@
 (declare ejecutar-asignacion)             ; HECHA
 (declare preprocesar-expresion)           ; HECHA
 (declare desambiguar)                     ; HECHA
-(declare precedencia)                     ; IMPLEMENTAR
-(declare aridad)                          ; IMPLEMENTAR
+(declare precedencia)                     ; DUDOSA
+(declare aridad)                          ; DUDOSA
 (declare eliminar-cero-decimal)           ; HECHA
 (declare eliminar-cero-entero)            ; HECHA
 
@@ -1186,6 +1186,33 @@
 ; 9
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn precedencia [token]
+    (cond
+        (= token (symbol ",")) 0
+        (= token (symbol "OR")) 1
+        (= token (symbol "AND")) 2
+        (= token (symbol "^")) 3
+        (= token (symbol "*")) 4
+        (= token (symbol "/")) 4
+        (= token (symbol "-u")) 5
+        (= token (symbol "+")) 7
+        (= token (symbol "-")) 7
+        (= token (symbol "ATN")) 8
+        (= token (symbol "SIN")) 8
+        (= token (symbol "INT")) 8
+        (= token (symbol "MID$")) 9
+        (= token (symbol "MID3$")) 9
+        (= token (symbol "LEN")) 9
+        (= token (symbol "ASC")) 10
+        (= token (symbol "CHR$")) 10
+        (= token (symbol "STR$")) 10
+        (= token (symbol "=")) 11
+        (= token (symbol "<>")) 11
+        (= token (symbol "<")) 11
+        (= token (symbol "<=")) 11
+        (= token (symbol ">")) 11
+        (= token (symbol ">=")) 11
+        :else 13
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1203,6 +1230,16 @@
 ; 3
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn aridad [token]
+    (let [aridad-1 (hash-set 'ATN 'INT 'SIN 'LEN 'ASC 'CHR$ 'STR$ (symbol "-u"))
+          aridad-2 (hash-set 'MID$ '+ '- '* '/ (symbol "^") '=  '<> '< '<= '> '>= 'AND 'OR)
+          aridad-3 (hash-set 'MID3$)]
+        (cond
+            (contains?	aridad-1 token) 1
+            (contains?	aridad-2 token) 2
+            (contains?	aridad-3 token) 3
+            :else 0
+        )
+    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
