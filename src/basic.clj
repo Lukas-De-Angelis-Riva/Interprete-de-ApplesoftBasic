@@ -663,7 +663,7 @@
 
 (defn palabra-reservada? [x]
     (contains?
-        (hash-set 'INPUT 'PRINT '? 'DATA 'READ 'REM 'RESTORE 'CLEAR 'LET 'LIST 'NEW 'RUN 'END 'FOR 'TO 'NEXT 'STEP 'GOSUB 'RETURN 'GOTO 'IF 'THEN 'ON 'ATN 'INT 'SIN 'LEN 'MID$ 'ASC 'CHR$ 'STR$)
+        (hash-set 'INPUT 'PRINT '? 'DATA 'READ 'REM 'RESTORE 'CLEAR 'LET 'LIST 'NEW 'RUN 'END 'FOR 'TO 'NEXT 'STEP 'GOSUB 'RETURN 'GOTO 'IF 'THEN 'ON)
          x
     )
 )
@@ -680,7 +680,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn operador? [x]
     (contains?
-        (hash-set '+ '- '* '/ '\^ '= '<> '< '<= '> '>= 'AND 'OR)
+        (hash-set '+ '- '* '/ '\^ '= '<> '< '<= '> '>= 'AND 'OR 'ATN 'INT 'SIN 'LEN 'MID$ 'ASC 'CHR$ 'STR$)
         x
     )
 )

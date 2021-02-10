@@ -30,17 +30,6 @@
 	(is (= true (palabra-reservada? 'IF)))
 	(is (= true (palabra-reservada? 'THEN)))
 	(is (= true (palabra-reservada? 'ON)))
-	;functions
-	(is (= true (palabra-reservada? 'ATN)))
-	(is (= true (palabra-reservada? 'INT)))
-	(is (= true (palabra-reservada? 'SIN)))
-	;strings
-	(is (= true (palabra-reservada? 'LEN)))
-	(is (= true (palabra-reservada? 'MID$)))
-	;cast
-	(is (= true (palabra-reservada? 'ASC)))
-	(is (= true (palabra-reservada? 'CHR$)))	
-	(is (= true (palabra-reservada? 'STR$)))
 
 	;not reserved words
 	(is (= false (palabra-reservada? 'NUMBER)))
@@ -67,7 +56,17 @@
 	;logical
 	(is (= true (operador? 'AND)))
 	(is (= true (operador? 'OR)))
-
+	;functions
+	(is (= true (operador? 'ATN)))
+	(is (= true (operador? 'INT)))
+	(is (= true (operador? 'SIN)))
+	;strings
+	(is (= true (operador? 'LEN)))
+	(is (= true (operador? 'MID$)))
+	;cast
+	(is (= true (operador? 'ASC)))
+	(is (= true (operador? 'CHR$)))	
+	(is (= true (operador? 'STR$)))
 
 	;not operators
 	(is (= false (operador? '**)))
