@@ -31,9 +31,9 @@
 
 (declare palabra-reservada?)              ; HECHA
 (declare operador?)                       ; HECHA
-(declare anular-invalidos)                ; DUDOSA
+(declare anular-invalidos)                ; COMPLETAR -> Quitar cosas como NEXT$ o THEN%
 (declare cargar-linea)                    ; HECHA
-(declare expandir-nexts)                  ; HECHA
+(declare expandir-nexts)                  ; DUDOSA -> ¿Hay que tener en cuenta los rem?
 (declare dar-error)                       ; HECHA
 (declare variable-float?)                 ; HECHA
 (declare variable-integer?)               ; HECHA
@@ -41,7 +41,7 @@
 (declare contar-sentencias)               ; HECHA
 (declare buscar-lineas-restantes)         ; HECHA
 (declare continuar-linea)                 ; DUDOSA -> Preguntar concretamente qué se quiere de esta función, ampliar los tests.
-(declare extraer-data)                    ; DUDOSA -> Ver si hace falta un presunto DATA "HOLA"...
+(declare extraer-data)                    ; DUDOSA -> Ver si hace falta un presunto DATA "HOLA"
 (declare ejecutar-asignacion)             ; HECHA
 (declare preprocesar-expresion)           ; HECHA
 (declare desambiguar)                     ; HECHA
@@ -1188,7 +1188,7 @@
 ; user=> (precedencia 'MID$)
 ; 9
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn precedencia [token]
+(defn precedencia [token] ;TODO ¿Está al revés?
     (cond
         (= token (symbol ",")) 0
         (= token (symbol "OR")) 1
