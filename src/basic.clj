@@ -1,3 +1,5 @@
+(ns basic)
+
 ; https://porkrind.org/a2
 ; https://www.calormen.com/jsbasic
 ; https://www.scullinsteel.com/apple2/

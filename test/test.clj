@@ -1,6 +1,6 @@
-(require '[clojure.test :refer [is deftest run-tests]])
-
-(load-file "src/basic.clj")
+(ns test
+  (:require [clojure.test :refer :all]
+            [basic :refer :all]))
 
 (deftest test-palabra-reservada?
 	;input-output
@@ -305,7 +305,3 @@
 	(is (= (eliminar-cero-entero (symbol "-0.413221")) "-.413221"))
 	(is (= (eliminar-cero-entero (symbol "-0")) "0"))
 )
-
-
-
-(run-tests)
