@@ -4,6 +4,7 @@ Trabajo práctico de la materia Lenguajes Formales [75.14]
 
 > Writing a compiler or interpreter is an excellent educational project and enhances skills in programming language understanding and design, data structure and algorithm design and a wide range of programming techniques. Studying compilers and interpreters makes you a better programmer.
 
+![Clojure CI](https://github.com/Lukas-De-Angelis-Riva/Interprete-de-ApplesoftBasic/workflows/Clojure%20CI/badge.svg)
 
 ## Enunciado:
 En este trabajo práctico se pide desarrollar, en el lenguaje Clojure, un intérprete de Applesoft BASIC.
