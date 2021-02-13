@@ -711,8 +711,9 @@
 
 (defn es-posible-nombre-de-variable? [x]
     (and
-        ((comp not nil? (partial re-matches #"[A-Z][A-Z0-9]*[$|%]?") str) x)
-        (not (palabra-reservada? x))
+        (nil? (re-matches #"(REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT)[$|%]?" (str x)))
+        (not (es-numero? x))
+        (some? (re-matches #"[A-Z][A-Z0-9]*[$|%]?" (str x)))
     )
 )
 
@@ -835,11 +836,11 @@
 ; user=> (variable-float? 'X$)
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn variable-float? [x]
     ;Esto es que sea alfanumerica y la primer letra sea alfabetica.
     ((comp not nil? (partial re-matches #"[a-zA-Z](\w+)?") str) x)
 )
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-integer?: predicado para determinar si un identificador
 ; es una variable entera, por ejemplo:
