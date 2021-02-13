@@ -33,7 +33,7 @@
 
 (declare palabra-reservada?)              ; HECHA
 (declare operador?)                       ; HECHA
-(declare anular-invalidos)                ; COMPLETAR -> Quitar cosas como NEXT$ o THEN%
+(declare anular-invalidos)                ; HECHA
 (declare cargar-linea)                    ; HECHA
 (declare expandir-nexts)                  ; DUDOSA -> ¿Hay que tener en cuenta los rem?
 (declare dar-error)                       ; HECHA
@@ -621,7 +621,14 @@
           -u (- operando)
           LEN (count operando)
           STR$ (if (not (number? operando)) (dar-error 163 nro-linea) (eliminar-cero-entero operando)) ; Type mismatch error
-          CHR$ (if (or (< operando 0) (> operando 255)) (dar-error 53 nro-linea) (str (char operando)))))) ; Illegal quantity error
+          CHR$ (if (or (< operando 0) (> operando 255)) (dar-error 53 nro-linea) (str (char operando))) ; Illegal quantity error
+          ATN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/atan operando)) ; Type mismatch error
+          INT (if (not (number? operando)) (dar-error 163 nro-linea) (int operando)) ; Type mismatch error
+          SIN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/sin operando)) ; Type mismatch error
+          ASC (cond
+                  (string? operando) (dar-error 163 nro-linea) ; Type mismatch error
+                  (empty? operando) (dar-error 53 nro-linea) ; Illegal quantity error
+                  :else (int (first operando))))))
   ([operador operando1 operando2 nro-linea]
     (if (or (nil? operando1) (nil? operando2))
         (dar-error 16 nro-linea)  ; Syntax error
@@ -631,11 +638,29 @@
           = (if (and (string? operando1) (string? operando2))
                 (if (= operando1 operando2) 1 0)
                 (if (= (+ 0 operando1) (+ 0 operando2)) 1 0))
+          <> (if (and (string? operando1) (string? operando2))
+                 (if (not= operando1 operando2) 1 0)
+                 (if (not= (+ 0 operando1) (+ 0 operando2))) 1 0)
+          > (if (and (string? operando1) (string? operando2))
+                (if (pos? (compare operando1 operando2)) 1 0)
+                (if (> (+ 0 operando1) (+ 0 operando2)) 1 0))
+          < (if (and (string? operando1) (string? operando2))
+                (if (neg? (compare operando1 operando2)) 1 0)
+                (if (< (+ 0 operando1) (+ 0 operando2)) 1 0))
+          >= (if (and (string? operando1) (string? operando2))
+                (if (or (pos? (compare operando1 operando2)) (= operando1 operando2)) 1 0)
+                (if (>= (+ 0 operando1) (+ 0 operando2)) 1 0))
+          <= (if (and (string? operando1) (string? operando2))
+                (if (or (neg? (compare operando1 operando2)) (= operando1 operando2)) 1 0)
+                (if (<= (+ 0 operando1) (+ 0 operando2)) 1 0))
           + (if (and (string? operando1) (string? operando2))
                 (str operando1 operando2)
                 (+ operando1 operando2))
+          - (if (or (not (number? operando1)) (not (number? operando2))) (dar-error 163 nro-linea) (- operando1 operando2)) ; Type mismatch error
           / (if (= operando2 0) (dar-error 133 nro-linea) (/ operando1 operando2))  ; Division by zero error
+          * (if (or (not (number? operando1)) (not (number? operando2))) (dar-error 163 nro-linea) (* operando1 operando2)) ; Type mismatch error
           AND (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (and (not= op1 0) (not= op2 0)) 1 0))
+          OR (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (or (not= op1 0) (not= op2 0)) 1 0))
           MID$ (if (< operando2 1)
                    (dar-error 53 nro-linea)  ; Illegal quantity error
                    (let [ini (dec operando2)] (if (>= ini (count operando1)) "" (subs operando1 ini))))))))
@@ -1197,33 +1222,33 @@
 ; user=> (precedencia 'MID$)
 ; 9
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn precedencia [token] ;TODO ¿Está al revés?
+(defn precedencia [token]
     (cond
         (= token (symbol ",")) 0
         (= token (symbol "OR")) 1
         (= token (symbol "AND")) 2
-        (= token (symbol "^")) 3
-        (= token (symbol "*")) 4
-        (= token (symbol "/")) 4
-        (= token (symbol "-u")) 5
-        (= token (symbol "+")) 7
-        (= token (symbol "-")) 7
-        (= token (symbol "ATN")) 8
-        (= token (symbol "SIN")) 8
-        (= token (symbol "INT")) 8
+        (= token (symbol "=")) 3
+        (= token (symbol "<>")) 3
+        (= token (symbol "<")) 4
+        (= token (symbol "<=")) 4
+        (= token (symbol ">")) 4
+        (= token (symbol ">=")) 4
+        (= token (symbol "-")) 5
+        (= token (symbol "+")) 5
+        (= token (symbol "/")) 6
+        (= token (symbol "*")) 6
+        (= token (symbol "-u")) 7
+        (= token (symbol "^")) 8
+        (= token (symbol "ATN")) 9
+        (= token (symbol "SIN")) 9
+        (= token (symbol "INT")) 9
         (= token (symbol "MID$")) 9
         (= token (symbol "MID3$")) 9
         (= token (symbol "LEN")) 9
-        (= token (symbol "ASC")) 10
-        (= token (symbol "CHR$")) 10
-        (= token (symbol "STR$")) 10
-        (= token (symbol "=")) 11
-        (= token (symbol "<>")) 11
-        (= token (symbol "<")) 11
-        (= token (symbol "<=")) 11
-        (= token (symbol ">")) 11
-        (= token (symbol ">=")) 11
-        :else 13
+        (= token (symbol "ASC")) 9
+        (= token (symbol "CHR$")) 9
+        (= token (symbol "STR$")) 9
+        :else 0
     )
 )
 
