@@ -29,7 +29,7 @@
 (declare desambiguar-comas)               ; NO TOCAR
 
 (declare evaluar)                         ; COMPLETAR
-(declare aplicar)                         ; COMPLETAR
+(declare aplicar)                         ; TESTEAR
 
 (declare palabra-reservada?)              ; HECHA
 (declare operador?)                       ; HECHA
@@ -640,7 +640,7 @@
                 (if (= (+ 0 operando1) (+ 0 operando2)) 1 0))
           <> (if (and (string? operando1) (string? operando2))
                  (if (not= operando1 operando2) 1 0)
-                 (if (not= (+ 0 operando1) (+ 0 operando2))) 1 0)
+                 (if (not= (+ 0 operando1) (+ 0 operando2)) 1 0))
           > (if (and (string? operando1) (string? operando2))
                 (if (pos? (compare operando1 operando2)) 1 0)
                 (if (> (+ 0 operando1) (+ 0 operando2)) 1 0))
@@ -1177,7 +1177,7 @@
 (defn desambiguar-posicion [expr n]
     (let [actual (get expr n :termino)
          previo (get expr (- n 1) nil)
-         es-operable-previo+ (or (es-numero? previo) (es-cadena? previo) (= (symbol ")") previo))
+         es-operable-previo+ (or (es-numero? previo) (string? previo) (= (symbol ")") previo))
          es-operable-previo- (or (es-numero? previo) (= (symbol ")") previo))
          proximo (get expr (+ n 1) nil)
          next-n (+ n 1)]
@@ -1248,7 +1248,7 @@
         (= token (symbol "ASC")) 9
         (= token (symbol "CHR$")) 9
         (= token (symbol "STR$")) 9
-        :else 0
+        :else 10
     )
 )
 
