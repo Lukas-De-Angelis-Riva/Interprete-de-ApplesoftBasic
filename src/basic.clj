@@ -711,7 +711,7 @@
 
 (defn es-posible-nombre-de-variable? [x]
     (and
-        (nil? (re-matches #"(REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT)[$|%]?" (str x)))
+        (nil? (re-matches #"(EXIT|ENV|DATA|REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT)[$|%]?" (str x)))
         (not (es-numero? x))
         (some? (re-matches #"[A-Z][A-Z0-9]*[$|%]?" (str x)))
     )
@@ -839,7 +839,9 @@
 
 (defn variable-float? [x]
     ;Esto es que sea alfanumerica y la primer letra sea alfabetica.
-    ((comp not nil? (partial re-matches #"[a-zA-Z](\w+)?") str) x)
+    (and
+        (some? (re-matches #"[A-Z]\w*" (str x)))
+        (es-posible-nombre-de-variable? x))
 )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-integer?: predicado para determinar si un identificador
@@ -852,7 +854,9 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-integer? [x]
-    (= (last (str x)) \%)
+    (and
+        (some? (re-matches #"[A-Z]\w*\%" (str x)))
+        (es-posible-nombre-de-variable? x))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -866,7 +870,9 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-string? [x]
-    (= (last (str x)) \$)
+    (and
+        (some? (re-matches #"[A-Z]\w*\$" (str x)))
+        (es-posible-nombre-de-variable? x))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
