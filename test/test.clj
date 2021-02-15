@@ -305,3 +305,18 @@
 	(is (= (eliminar-cero-entero (symbol "-0.413221")) "-.413221"))
 	(is (= (eliminar-cero-entero (symbol "-0")) "0"))
 )
+
+(deftest test-aplicar
+	;aridad 1:
+	(is (= (aplicar 'LEN "HOLA" 10) 4))
+	(is (= (aplicar 'STR$ 123 10) "123"))
+	(is (= (aplicar 'STR$ 123.213 10) "123.213"))
+	(is (= (aplicar '-u 213 10) -213))
+	(is (= (aplicar '-u 213.123 10) -213.123))
+	;aridad 2:
+	(is (= (aplicar '+ "HOLA " "MUNDO" 10) "HOLA MUNDO"))
+	(is (= (aplicar '- 10 4 10) 6))
+	(is (= (aplicar '> "HELLO" "HELLI" 10) 1))
+	(is (= (aplicar '> "HELLO" "HELLU" 10) 0))
+	;aridad 3:
+)

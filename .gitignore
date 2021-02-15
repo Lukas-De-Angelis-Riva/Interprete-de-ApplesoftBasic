@@ -2,3 +2,4 @@ clojure-1.8.0.jar
 target/classes/META-INF/maven/interprete-applesoft-basic/interprete-applesoft-basic/pom.properties
 target/stale/leiningen.core.classpath.extract-native-dependencies
 .lein-failures
+.lein-repl-history
