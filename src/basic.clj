@@ -35,7 +35,7 @@
 (declare operador?)                       ; HECHA
 (declare anular-invalidos)                ; HECHA
 (declare cargar-linea)                    ; HECHA
-(declare expandir-nexts)                  ; DUDOSA -> ¿Hay que tener en cuenta los rem?
+(declare expandir-nexts)                  ; HECHA
 (declare dar-error)                       ; HECHA
 (declare variable-float?)                 ; HECHA
 (declare variable-integer?)               ; HECHA
@@ -53,7 +53,8 @@
 (declare eliminar-cero-entero)            ; HECHA
 
 (declare es-posible-nombre-de-variable?)  ; HECHA
-
+(declare quitar-rem)                      ; HECHA
+(declare obtener-rem)                     ; HECHA
 
 (defn spy 
     ([cosa]
@@ -64,8 +65,8 @@
         (prn "OPERANDO: " operando)
         (prn "Es string? " (if (string? operando) "SI" "NO"))))
     ([n sentencia ambiente]
-        (do (prn "SENTENCIA: " sentencia)
-        (prn "AMBIENTE: " ambiente))
+        (do (println "SENTENCIA: " sentencia)
+        (println "AMBIENTE: " ambiente))
     )
 )
 
@@ -853,6 +854,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;recibe una lista que compone una operacion y devuelve si se trata de un NEXT
+
+(defn quitar-rem [sentencia]
+    (cond 
+        (not (seq? sentencia)) sentencia
+        (number? (first sentencia)) (cons (first sentencia) (quitar-rem (rest sentencia)))
+        :else (take-while #(not= (first %) 'REM) sentencia)
+    )
+)
+
+(defn obtener-rem [sentencia]
+    (cond
+        (not (seq? sentencia)) sentencia
+        (number? (first sentencia)) (obtener-rem (rest sentencia))
+        :else (drop-while #(not= (first %) 'REM) sentencia)
+    )
+)
+
 (defn es-next? [x]
     (= 'NEXT (first x))
 )
@@ -860,22 +878,26 @@
 ;recibe una lista que compone una operacion NEXT y devuelve una lista con las sublistas
 ;resultantes de la expansion
 (defn expandir [x]
-    (let [lista-nexts-expandidos (map #(list 'NEXT %) (filter es-posible-nombre-de-variable? x))] (if (empty? lista-nexts-expandidos) (list x) lista-nexts-expandidos))
+    (let [lista-nexts-expandidos (map #(list 'NEXT %) (filter es-posible-nombre-de-variable? x))]
+        (if (empty? lista-nexts-expandidos)
+            (list x)
+            lista-nexts-expandidos))
 )
 
 (defn expandir-nexts-recursivo [v n]
-    (if (empty? n) 
+    (if (empty? n)
         v
         (let [actual (first n),
             vector-nuevo (if (es-next? actual) (apply (partial conj v) (expandir actual)) (conj v actual))]
             (expandir-nexts-recursivo vector-nuevo (rest n))
         )
     )
-    
 )
 
 (defn expandir-nexts [n]
-    (seq (expandir-nexts-recursivo '[] n))
+    (let [n-sin-rem (quitar-rem n)
+          rem-de-n (obtener-rem n)]
+    (concat (seq (expandir-nexts-recursivo '[] n-sin-rem)) rem-de-n))
 )
 
 
@@ -1073,15 +1095,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; recibe una linea y devuelve la linea hasta la primer sentencia rem.
-(defn quitar-rem [linea]
-    (let [nro-linea (first linea)]
-        (->> linea
-            (rest)
-            (take-while #(not= (first %) 'REM))
-            (cons nro-linea)
-        )
-    )
-)
 
 (defn preparar-data [x]
     (cond

@@ -161,6 +161,8 @@
 	(is (= '((PRINT 1) (NEXT A) (NEXT B)) (expandir-nexts (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'B)))))
 	(is (= '((PRINT 1) (NEXT A) (NEXT B) (NEXT C) (NEXT D)) (expandir-nexts (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'B (symbol ",") 'C) (list 'NEXT 'D)))))
 	(is (= '((NEXT A)) (expandir-nexts (list (list 'NEXT 'A)))))
+	(is (= (list '(PRINT 1) (list 'NEXT 'A) (list 'NEXT 'B) (list 'REM 'ESTE 'NO) (list 'NEXT 'X (symbol ",") 'Y)) (expandir-nexts (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'B) (list 'REM 'ESTE 'NO) (list 'NEXT 'X (symbol ",") 'Y)))))
+	(is (= (list '(PRINT 1) (list 'NEXT 'A) (list 'NEXT 'P) (list 'REM 'NEXT 'ANTERIOR (symbol ",") 'POSTERIOR)) (expandir-nexts (list '(PRINT 1) (list 'NEXT 'A (symbol ",") 'P) (list 'REM 'NEXT 'ANTERIOR (symbol ",") 'POSTERIOR)))))
 	(is (= '((PRINT 1)) (expandir-nexts '((PRINT 1)))))
 )
 
@@ -224,6 +226,15 @@
 (deftest test-quitar-rem
 	(is (= (quitar-rem '(10 (PRINT X) (REM ESTE NO) (DATA 30))) '(10 (PRINT X))))
 	(is (= (quitar-rem '(10 (REM ESTE NO) (PRINT X) (PRINT Y))) '(10)))
+	(is (= (quitar-rem '((PRINT X) (REM ESTE NO) (DATA 30))) '((PRINT X))))
+	(is (= (quitar-rem '((REM ESTE NO) (PRINT X) (PRINT Y))) '()))
+)
+
+(deftest test-obtener-rem
+	(is (= (obtener-rem '(10 (PRINT X) (REM ESTE NO) (DATA 30))) '((REM ESTE NO) (DATA 30))))
+	(is (= (obtener-rem '(10 (REM ESTE NO) (PRINT X) (PRINT Y))) '((REM ESTE NO) (PRINT X) (PRINT Y))))
+	(is (= (obtener-rem '((PRINT X) (REM ESTE NO) (DATA 30))) '((REM ESTE NO) (DATA 30))))
+	(is (= (obtener-rem '((REM ESTE NO) (PRINT X) (PRINT Y))) '((REM ESTE NO) (PRINT X) (PRINT Y))))
 )
 
 (deftest test-extraer-data 
