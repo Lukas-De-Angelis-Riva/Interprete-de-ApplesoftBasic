@@ -825,14 +825,19 @@
     (> (first linea-x) (first linea-y))    
 )
 
+; Devuelve si la linea-x tiene nro-linea igual a la linea-y
+(defn coincide-nro-linea [linea-x linea-y]
+    (= (first linea-x) (first linea-y))
+)
+
 (defn cargar-linea [linea amb]
-    (let [
-        lineas-menores (filter (partial se-ejecuta-despues linea) (first amb))
-        lineas-mayores (filter (partial se-ejecuta-antes linea) (first amb))
-        nuevas-lineas (concat lineas-menores (cons linea '()) lineas-mayores)
-    ]
-    (vec (cons nuevas-lineas (rest amb)))
-    )
+    (let [lineas-menores (filter (partial se-ejecuta-despues linea) (first amb))
+          lineas-mayores (filter (partial se-ejecuta-antes linea) (first amb))
+          linea-vieja (first (filter (partial coincide-nro-linea linea) (first amb)))
+          nuevas-lineas (if (or (> (count linea) 1) (nil? linea-vieja))
+                            (concat lineas-menores (cons linea '()) lineas-mayores)
+                            (concat lineas-menores lineas-mayores))]
+        (vec (cons nuevas-lineas (rest amb))))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
