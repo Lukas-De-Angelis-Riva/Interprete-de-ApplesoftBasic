@@ -992,14 +992,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn contar-sentencias [nro-linea amb]
-    ;TODO: si no esta la linea deberia devolver nil o 0?
     (->> amb
         (first)
         (filter #(= (first %) nro-linea))
         (first)
         (rest)
         (expandir-nexts)
-        ;TODO: proximamente (extraer-data) Aun no esta hecha
         (count)
     )
 )
@@ -1049,7 +1047,6 @@
                 (->> linea-sin-expandir
                     (rest)
                     (expandir-nexts)
-                    ;TODO: proximamente (extraer-data) Aun no esta hecha
                 )
             )
             lineas-siguientes (filter #(< nro-linea (first %)) prg)]
@@ -1083,7 +1080,7 @@
         )
     )
 )
-;TODO: Preguntar si es así. No entiendo bien qué es lo que debería hacer esta función.
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; extraer-data: recibe la representación intermedia de un programa
 ; y retorna una lista con todos los valores embebidos en las
@@ -1105,7 +1102,7 @@
 
 (defn expandir-data-sentencia [sentencia]
     (map #(list 'DATA (preparar-data %)) (filter #(and (not= 'DATA %) (not= (symbol ",") %)) sentencia))
-);TODO: No tiene en cuenta un (DATA "HOLA") ¿Debería?
+)
 
 (defn es-data? [sentencia]
     (= (first sentencia) 'DATA)
