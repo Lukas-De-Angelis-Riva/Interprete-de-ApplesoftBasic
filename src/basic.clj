@@ -1145,13 +1145,15 @@
 )
 
 (defn asignar-variable [nombre-var valor amb]
-    (let [asignar (partial asignar-en-ambiente amb nombre-var)]
+    (let [asignar (partial asignar-en-ambiente amb nombre-var)
+         	error-mismatch #(do (dar-error 163 (amb 1)) amb)]
         (cond
-            (nil? valor) (do (dar-error 163 (amb 1)) amb)
-            (variable-string? nombre-var) (if (string? valor) (asignar (str valor)) (do (dar-error 163 (amb 1)) amb))
-            (variable-integer? nombre-var) (if (number? valor) (asignar (int valor)) (do (dar-error 163 (amb 1)) amb))
-            (variable-float? nombre-var) (if (es-numero? valor) (asignar valor) (do (dar-error 163 (amb 1)) amb))
-            :else (do (dar-error 163 (amb 1)) amb)
+            ; si el valor no tiene sentido se devuelve el ambiente intacto.
+            (nil? valor) amb
+            (variable-string? nombre-var) (if (string? valor) (asignar (str valor)) (error-mismatch))
+            (variable-integer? nombre-var) (if (number? valor) (asignar (int valor)) (error-mismatch))
+            (variable-float? nombre-var) (if (number? valor) (if (ratio? valor) (asignar (double valor)) (asignar valor)) (error-mismatch))
+            :else (error-mismatch)
         )
     )
 )
@@ -1357,6 +1359,7 @@
 (defn eliminar-cero-entero [n]
     (let [str-symbol (str n)]
         (cond
+            (string? n) n
             (nil? n) nil
             (ratio? n) (eliminar-cero-entero (double n))
             (and (= \- (first str-symbol)) (= \0 (fnext str-symbol)) (> (count str-symbol) 3)) (apply str \- (drop 2 str-symbol))
