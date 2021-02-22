@@ -1140,21 +1140,31 @@
 ; [((10 (PRINT X))) [10 1] [] [] [] 0 {X$ "HOLA MUNDO"}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn ejecutar-asignacion [sentencia amb]
-    (let [mapa-variables (amb 6)
-          variable (first sentencia)
-          n (count sentencia)
-          nuevo-valor (if (< n 2) nil (calcular-expresion (drop 2 sentencia) amb))
-          nuevo-valor-casteado (cond (variable-string? variable) (str nuevo-valor) :else nuevo-valor)
-          nuevo-mapa (assoc mapa-variables variable nuevo-valor-casteado)]
-          (if (not (es-posible-nombre-de-variable? variable))
-              (dar-error 16 (amb 1))
-              (if (nil? nuevo-valor)
-                  nil
-                  (assoc amb 6 nuevo-mapa)))
+(defn asignar-en-ambiente [amb nombre-var valor]
+    (assoc amb 6 (assoc (amb 6) nombre-var valor))
+)
+
+(defn asignar-variable [nombre-var valor amb]
+    (let [asignar (partial asignar-en-ambiente amb nombre-var)]
+        (cond
+            (nil? valor) (do (dar-error 163 (amb 1)) amb)
+            (variable-string? nombre-var) (if (string? valor) (asignar (str valor)) (do (dar-error 163 (amb 1)) amb))
+            (variable-integer? nombre-var) (if (number? valor) (asignar (int valor)) (do (dar-error 163 (amb 1)) amb))
+            (variable-float? nombre-var) (if (es-numero? valor) (asignar valor) (do (dar-error 163 (amb 1)) amb))
+            :else (do (dar-error 163 (amb 1)) amb)
+        )
     )
 )
 
+(defn ejecutar-asignacion [sentencia amb]
+    (let [variable (first sentencia)
+          n (count sentencia)
+          nuevo-valor (if (< n 2) nil (calcular-expresion (drop 2 sentencia) amb))]
+          (if (not (es-posible-nombre-de-variable? variable))
+              (dar-error 16 (amb 1))
+              (asignar-variable variable nuevo-valor amb))
+    )
+)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; preprocesar-expresion: recibe una expresion y la retorna con
 ; las variables reemplazadas por sus valores y el punto por el
