@@ -12,7 +12,7 @@
 (declare evaluar-linea)                   ; NO TOCAR
 (declare buscar-mensaje)                  ; NO TOCAR
 (declare seleccionar-destino-de-on)       ; NO TOCAR
-(declare leer-data)                       ; NO TOCAR -> Preguntar cuando usar esta funcion.
+(declare leer-data)                       ; NO TOCAR
 (declare leer-con-enter)                  ; NO TOCAR
 (declare retornar-al-for)                 ; NO TOCAR
 (declare continuar-programa)              ; NO TOCAR
@@ -43,7 +43,7 @@
 (declare contar-sentencias)               ; HECHA
 (declare buscar-lineas-restantes)         ; HECHA
 (declare continuar-linea)                 ; HECHA
-(declare extraer-data)                    ; DUDOSA -> Ver si hace falta un presunto DATA "HOLA"
+(declare extraer-data)                    ; HECHA
 (declare ejecutar-asignacion)             ; HECHA
 (declare preprocesar-expresion)           ; HECHA
 (declare desambiguar)                     ; HECHA
@@ -53,20 +53,41 @@
 (declare eliminar-cero-entero)            ; HECHA
 
 (declare es-posible-nombre-de-variable?)  ; HECHA
+(declare es-numero?)
 (declare quitar-rem)                      ; HECHA
 (declare obtener-rem)                     ; HECHA
 
-(defn spy 
-    ([cosa]
-        (do (prn "COSA: " cosa)
-        (prn "Es string?: " (if (string? cosa) "SI" "NO"))))
-    ([operador operando]
-        (do (prn "OPERADOR: " operador)
-        (prn "OPERANDO: " operando)
-        (prn "Es string? " (if (string? operando) "SI" "NO"))))
-    ([n sentencia ambiente]
-        (do (println "SENTENCIA: " sentencia)
-        (println "AMBIENTE: " ambiente))
+(defn es-numero? [x]
+    (->> x
+        (str)
+        (#((partial re-matches #"\d+\.\d+|\d+|\.\d+|\.") %))
+        (#(not (nil? %)))
+    )
+)
+
+(defn es-posible-nombre-de-variable? [x]
+    (and
+        (nil? (re-matches #"(EXIT|ENV|DATA|REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT)[$|%]?" (str x)))
+        (not (es-numero? x))
+        (not (string? x))
+        (some? (re-matches #"[A-Z][A-Z0-9]*[$|%]?" (str x)))
+    )
+)
+
+
+(defn quitar-rem [sentencia]
+    (cond 
+        (not (seq? sentencia)) sentencia
+        (number? (first sentencia)) (cons (first sentencia) (quitar-rem (rest sentencia)))
+        :else (take-while #(not= (first %) 'REM) sentencia)
+    )
+)
+
+(defn obtener-rem [sentencia]
+    (cond
+        (not (seq? sentencia)) sentencia
+        (number? (first sentencia)) (obtener-rem (rest sentencia))
+        :else (drop-while #(not= (first %) 'REM) sentencia)
     )
 )
 
@@ -769,29 +790,6 @@
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn es-numero? [x]
-    (->> x
-        (str)
-        (#((partial re-matches #"\d+\.\d+|\d+|\.\d+|\.") %))
-        (#(not (nil? %)))
-    )
-)
-
-(defn es-cadena? [x]
-    (->> x
-        (str)
-        (#(and (= (first %) \") (= (last %) \")))
-    )
-)
-
-(defn es-posible-nombre-de-variable? [x]
-    (and
-        (nil? (re-matches #"(EXIT|ENV|DATA|REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT)[$|%]?" (str x)))
-        (not (es-numero? x))
-        (some? (re-matches #"[A-Z][A-Z0-9]*[$|%]?" (str x)))
-    )
-)
-
 (defn valido? [x]
     (let [simbolos-invalidos #"\!|\"|\#|\&|\'|\:|\{|\}|\[|\]|\_|\|\~|\%|\$"]
         (nil? (re-matches simbolos-invalidos (str x)))
@@ -854,22 +852,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;recibe una lista que compone una operacion y devuelve si se trata de un NEXT
-
-(defn quitar-rem [sentencia]
-    (cond 
-        (not (seq? sentencia)) sentencia
-        (number? (first sentencia)) (cons (first sentencia) (quitar-rem (rest sentencia)))
-        :else (take-while #(not= (first %) 'REM) sentencia)
-    )
-)
-
-(defn obtener-rem [sentencia]
-    (cond
-        (not (seq? sentencia)) sentencia
-        (number? (first sentencia)) (obtener-rem (rest sentencia))
-        :else (drop-while #(not= (first %) 'REM) sentencia)
-    )
-)
 
 (defn es-next? [x]
     (= 'NEXT (first x))
@@ -993,10 +975,10 @@
 
 (defn contar-sentencias [nro-linea amb]
     (->> amb
-        (first)
-        (filter #(= (first %) nro-linea))
-        (first)
-        (rest)
+        (first)                           ; toma el programa del ambiente.
+        (filter #(= (first %) nro-linea)) ; filtra la linea buscada.
+        (first)                           ; toma la linea (que presuntamente sera la unica)
+        (rest)                            ; quita el nro-linea
         (expandir-nexts)
         (count)
     )
@@ -1165,7 +1147,11 @@
           nuevo-valor (if (< n 2) nil (calcular-expresion (drop 2 sentencia) amb))
           nuevo-valor-casteado (cond (variable-string? variable) (str nuevo-valor) :else nuevo-valor)
           nuevo-mapa (assoc mapa-variables variable nuevo-valor-casteado)]
-          (if (nil? nuevo-valor) nil (assoc amb 6 nuevo-mapa))
+          (if (not (es-posible-nombre-de-variable? variable))
+              (dar-error 16 (amb 1))
+              (if (nil? nuevo-valor)
+                  nil
+                  (assoc amb 6 nuevo-mapa)))
     )
 )
 
@@ -1196,7 +1182,7 @@
         (es-numero? x) (eliminar-cero-decimal x)
         :else x
     )
-) ; En caso de ser un operador devolver x, en caso de ser palabra reservada devolver nil o :palabra-reservada.
+)
 
 (defn preprocesar-expresion [expr amb]
     (let [mapa-variables (amb 6)]
@@ -1318,8 +1304,8 @@
 
 (defn eliminar-cero-decimal [n]
     (cond 
-        (= "." (str n)) 0
         (string? n) n
+        (= "." (str n)) 0
         (es-numero? n) (->> n
             (str)
             (quitar-ceros-de-adelante)

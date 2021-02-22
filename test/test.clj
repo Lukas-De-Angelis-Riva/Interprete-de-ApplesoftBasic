@@ -89,14 +89,6 @@
 	(is (= false (es-numero? "1k")))
 )
 
-(deftest test-es-cadena?
-	;string
-	(is (= true (es-cadena? "\"1\"")))
-	(is (= true (es-cadena? "\"HOLA COMO ESTAS\"")))
-	(is (= true (es-cadena? "\"127.0.0.1\"")))
-	(is (= true (es-cadena? (symbol "\"HOLA\""))))
-)
-
 (deftest test-es-posible-nombre-de-variable?
 	;is a possible name
 	(is (= true (es-posible-nombre-de-variable? 'ITERADOR)))
@@ -114,6 +106,8 @@
 	(is (= false (es-posible-nombre-de-variable? 'h2o)))
 	(is (= false (es-posible-nombre-de-variable? 'x)))
 	(is (= false (es-posible-nombre-de-variable? 'hola)))
+	(is (= false (es-posible-nombre-de-variable? "hola")))
+	(is (= false (es-posible-nombre-de-variable? 1)))
 	(is (= false (es-posible-nombre-de-variable? (symbol "1hola"))))
 	(is (= false (es-posible-nombre-de-variable? (symbol "1hola$"))))
 )
