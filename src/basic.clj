@@ -52,6 +52,12 @@
 (declare eliminar-cero-decimal)           ; HECHA
 (declare eliminar-cero-entero)            ; HECHA
 
+(declare aplicar-right)																			; FINAL
+
+(defn aplicar-right [s n]
+	(apply str (take-last n s))
+)
+
 (declare es-posible-nombre-de-variable?)  ; HECHA
 (declare es-numero?)
 (declare quitar-rem)                      ; HECHA
@@ -67,7 +73,7 @@
 
 (defn es-posible-nombre-de-variable? [x]
     (and
-        (nil? (re-matches #"(EXIT|ENV|DATA|REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT)[$|%]?" (str x)))
+        (nil? (re-matches #"(EXIT|ENV|DATA|REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT|RIGHT\$)[$|%]?" (str x)))
         (not (es-numero? x))
         (not (string? x))
         (some? (re-matches #"[A-Z][A-Z0-9]*[$|%]?" (str x)))
@@ -140,7 +146,7 @@
         pre-rem (subs mayu 0 (if (nil? ini-rem) (count mayu) ini-rem)),
         pos-rem (subs mayu (if (nil? ini-rem) (- (count mayu) 1) (+ ini-rem 3)) (- (count mayu) 1)),
         sin-rem (->> pre-rem
-                    (re-seq #"EXIT|ENV|DATA[^\:]*?\:|REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT|\<\=|\>\=|\<\>|\<|\>|\=|\(|\)|\?|\;|\:|\,|\+|\-|\*|\/|\^|\"[^\"]*\"|\d+\.\d+E[+-]?\d+|\d+\.E[+-]?\d+|\.\d+E[+-]?\d+|\d+E[+-]?\d+|\d+\.\d+|\d+\.|\.\d+|\.|\d+|[A-Z][A-Z0-9]*[\%\$]?|[A-Z]|\!|\"|\#|\$|\%|\&|\'|\@|\[|\\|\]|\_|\{|\||\}|\~")
+                    (re-seq #"EXIT|ENV|DATA[^\:]*?\:|RIGHT\$|REM|NEW|CLEAR|LIST|RUN|LOAD|SAVE|LET|AND|OR|INT|SIN|ATN|LEN|MID\$|STR\$|CHR\$|ASC|GOTO|ON|IF|THEN|FOR|TO|STEP|NEXT|GOSUB|RETURN|END|INPUT|READ|RESTORE|PRINT|\<\=|\>\=|\<\>|\<|\>|\=|\(|\)|\?|\;|\:|\,|\+|\-|\*|\/|\^|\"[^\"]*\"|\d+\.\d+E[+-]?\d+|\d+\.E[+-]?\d+|\.\d+E[+-]?\d+|\d+E[+-]?\d+|\d+\.\d+|\d+\.|\.\d+|\.|\d+|[A-Z][A-Z0-9]*[\%\$]?|[A-Z]|\!|\"|\#|\$|\%|\&|\'|\@|\[|\\|\]|\_|\{|\||\}|\~")
                     (map #(if (and (> (count %) 4) (= "DATA" (subs % 0 4))) (clojure.string/split % #":") [%]))
                     (map first)
                     (remove nil?)
@@ -706,6 +712,9 @@
         (if (= operador (symbol "^"))
             (Math/pow operando1 operando2)
         (case operador
+          RIGHT$ (if (or (not (string? operando1)) (not (number? operando2)))
+              (dar-error 163 nro-linea)  ; Type mismatch error
+              (aplicar-right operando1 (int operando2)))
           = (if (and (string? operando1) (string? operando2))
                 (if (= operando1 operando2) 1 0)
                 (if (= (+ 0 operando1) (+ 0 operando2)) 1 0))
@@ -1260,6 +1269,7 @@
         (= token (symbol "ASC")) 9
         (= token (symbol "CHR$")) 9
         (= token (symbol "STR$")) 9
+        (= token (symbol "RIGHT$")) 9
         (palabra-reservada? token) 0
         :else nil
     )
@@ -1281,7 +1291,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn aridad [token]
     (let [aridad-1 (hash-set 'ATN 'INT 'SIN 'LEN 'ASC 'CHR$ 'STR$ (symbol "-u"))
-          aridad-2 (hash-set 'MID$ '+ '- '* '/ (symbol "^") '=  '<> '< '<= '> '>= 'AND 'OR)
+          aridad-2 (hash-set 'MID$ '+ '- '* '/ (symbol "^") '=  '<> '< '<= '> '>= 'AND 'OR 'RIGHT$)
           aridad-3 (hash-set 'MID3$)]
         (cond
             (contains?	aridad-1 token) 1

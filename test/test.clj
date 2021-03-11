@@ -327,3 +327,7 @@
 	(is (= (aplicar '> "HELLO" "HELLU" 10) 0))
 	;aridad 3:
 )
+
+(deftest test-right
+	(is (= "LIS" (aplicar-right "ANGELIS" 3)))
+)

@@ -3,3 +3,6 @@ target/classes/META-INF/maven/interprete-applesoft-basic/interprete-applesoft-ba
 target/stale/leiningen.core.classpath.extract-native-dependencies
 .lein-failures
 .lein-repl-history
+entrega/basic.clj
+entrega/interprete-103784.zip
+entrega/test.clj
